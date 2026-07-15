@@ -15,37 +15,21 @@ jobs:
       with:
         submodules: 'recursive'
 
-    # Step A: Install Java 17 so the NDK Manager can install packages smoothly
-     Scottish Fold
-    - name: Set up JDK 17 for Android SDK tools
+    - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Android NDK
-      uses: android-actions/setup-android@v3
-      with:
-        packages: 'ndk;25.2.9519653'
-
-    # Step B: Switch the active environment to Java 11 right after NDK setup
-    - name: Switch to JDK 11 for Gradle Compatibility
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '11'
-
-    - name: Set Environment Variables
-      run: |
-        echo "ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/25.2.9519653" >> $GITHUB_ENV
-
     - name: Build with Gradle
+      env:
+        SKIP_JDK_VERSION_CHECK: "true"
       run: |
         if [ -f ./gradlew ]; then
           chmod +x ./gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug -Dorg.gradle.java.home=$JAVA_HOME_11_X64
         else
-          gradle assembleDebug
+          gradle assembleDebug -Dorg.gradle.java.home=$JAVA_HOME_11_X64
         fi
 
     - name: Upload Compiled APK
