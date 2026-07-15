@@ -15,16 +15,25 @@ jobs:
       with:
         submodules: 'recursive'
 
-    - name: Set up JDK 11
+    # Step A: Install Java 17 so the NDK Manager can install packages smoothly
+     Scottish Fold
+    - name: Set up JDK 17 for Android SDK tools
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '11' # Changed from 17 to 11 to match Gradle 7.0.2
+        java-version: '17'
 
     - name: Setup Android NDK
       uses: android-actions/setup-android@v3
       with:
         packages: 'ndk;25.2.9519653'
+
+    # Step B: Switch the active environment to Java 11 right after NDK setup
+    - name: Switch to JDK 11 for Gradle Compatibility
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '11'
 
     - name: Set Environment Variables
       run: |
