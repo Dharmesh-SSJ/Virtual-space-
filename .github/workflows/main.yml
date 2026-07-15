@@ -25,15 +25,21 @@ jobs:
       env:
         SKIP_JDK_VERSION_CHECK: "true"
       run: |
-        # Automatically find and change the app name to Dssj
+        # 1. Change the app name to Dssj
         find . -type f -name "strings.xml" -exec sed -i 's/<string name="app_name">.*<\/string>/<string name="app_name">Dssj<\/string>/g' {} +
         
-        # Build the APK with your custom package name
+        # 2. Force the package name directly into all Manifest files (Notice the backslash before the $)
+        find . -type f -name "AndroidManifest.xml" -exec sed -i 's/\${masterPkg}/com.virtual.dssj/g' {} +
+        
+        # 3. Add to properties just in case the Java code still looks for it
+        echo "masterPkg=com.virtual.dssj" >> gradle.properties
+        
+        # 4. Compile the APK
         if [ -f ./gradlew ]; then
           chmod +x ./gradlew
-          ./gradlew assembleDebug -Dorg.gradle.java.home=$JAVA_HOME_11_X64 -PmasterPkg=com.virtual.dssj
+          ./gradlew assembleDebug -Dorg.gradle.java.home=$JAVA_HOME_11_X64
         else
-          gradle assembleDebug -Dorg.gradle.java.home=$JAVA_HOME_11_X64 -PmasterPkg=com.virtual.dssj
+          gradle assembleDebug -Dorg.gradle.java.home=$JAVA_HOME_11_X64
         fi
 
     - name: Upload Compiled APK
